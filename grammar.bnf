@@ -1,0 +1,58 @@
+<program> ::= (<delim>? <function>)* <delim>?
+
+<function> ::= <function_decl> <code_block>
+<function_decl> ::= "let" <delim> <function_type> <delim> <ident> <parameter_list>
+<parameter_list> ::= <left_par> (<parameter> (<comma> <parameter>)*)? <right_par>
+<parameter> ::= <value_type> <delim> <ident>
+
+
+<code_block> ::= "{" (<delim>? <line_expr>)* <delim>? "}"
+<line_expr> ::= <variable_creation>
+              | <variable_assignment>
+              | <conditional_expr>
+              | <function_call> ";"
+              | <return_statement>
+              | <code_block>
+
+<variable_creation> ::= <value_type> <delim> <variable_assignment>
+<variable_assignment> ::= <ident> <delim>? ":=" <delim>? <value> <delim>? ";"
+
+<conditional_expr> ::= "if" <left_par> <value> <right_par> <line_expr> (<delim>? <else>)?
+<else> ::= "else" <delim> <line_expr>
+
+<function_call> ::= <ident> <argument_list>
+<argument_list> ::= <left_par> (<value> (<comma> <value>)*)? <right_par>
+
+<return_statement> ::= "return" <delim> <value> <delim>? ";"
+
+
+<value> ::= <arithmetic_value> (<order_operation> <arithmetic_value>)?
+<arithmetic_value> ::= <term> | <term> <plus_minus_operation> <arithmetic_value>
+<term> ::= <atom> | <atom> <mul_div_operation> <term>
+<atom> ::= <integer_literal>
+         | <string_literal>
+         | <boolean_literal>
+         | <function_call>
+         | <ident>
+         | "(" <delim>? <value> <delim>? ")"
+
+<integer_literal> ::= "regexp:[0-9]"+
+<string_literal> ::= "\"" <string_literal_char>* "\""
+<string_literal_char> ::= "regexp:[^\"]"
+<boolean_literal> ::= "true" | "false"
+
+
+<function_type> ::= <value_type> | "void"
+<value_type> ::= "Integer" | "String" | "Boolean"
+
+
+<comma> ::= <delim>? "," <delim>?
+<left_par> ::= <delim>? "(" <delim>?
+<right_par> ::= <delim>? ")" <delim>?
+<order_operation> ::= <delim>? ("<=" | ">=" | "<" | ">" | "==" | "!=") <delim>?
+<plus_minus_operation> ::= <delim>? ("+" | "-") <delim>?
+<mul_div_operation> ::= <delim>? ("*" | "/" | "%") <delim>?
+
+<delim> ::= "regexp:\w"+
+<ident> ::= <ident_char>+
+<ident_char> ::= "regexp:[a-z]" | "regexp:[A-Z]" | "_"
