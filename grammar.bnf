@@ -18,12 +18,12 @@
 <variable_assignment> ::= <ident> <delim>? ":=" <delim>? <value> <delim>? ";"
 
 <conditional_expr> ::= "if" <left_par> <value> <right_par> <line_expr> (<delim>? <else>)?
-<else> ::= "else" <delim> <line_expr>
+<else> ::= "else" <delim>? <line_expr>
 
 <function_call> ::= <ident> <argument_list>
 <argument_list> ::= <left_par> (<value> (<comma> <value>)*)? <right_par>
 
-<return_statement> ::= "return" <delim> <value> <delim>? ";"
+<return_statement> ::= "return" <delim>? <value> <delim>? ";"
 
 
 <value> ::= <arithmetic_value> (<order_operation> <arithmetic_value>)?

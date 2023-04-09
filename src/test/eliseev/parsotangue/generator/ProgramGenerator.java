@@ -184,7 +184,7 @@ public class ProgramGenerator {
     private String generateFunctionCall() {
         final StringBuilder result = new StringBuilder();
         result.append(generateIdent()).append(generateLeftPar());
-        final int argumentsCount = random.nextInt(maxParametersCount);
+        final int argumentsCount = random.nextInt(maxParametersCount + 1);
         for (int i = 0; i < argumentsCount; i++) {
             if (i != 0) {
                 result.append(generateWhitespaces()).append(",").append(generateWhitespaces());
