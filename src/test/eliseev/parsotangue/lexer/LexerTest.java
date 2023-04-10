@@ -14,12 +14,14 @@ import static org.junit.Assert.fail;
 public class LexerTest {
     private final List<String> INCORRECT_INSERTIONS = List.of("\"", " ! ", "@##@", "&a^", " = ");
 
-    private void testTokenizableProgram(final String program) {
+    private void testTokenizableProgram(final String program, final boolean printTokenized) {
         final CharSource source = new StringCharSource(program);
         final Lexer lexer = new Lexer(source);
         try {
             final List<Token> tokens = lexer.tokenize();
-            System.out.println(tokens.stream().map(Object::toString).collect(Collectors.joining()));
+            if (printTokenized) {
+                System.out.println(tokens.stream().map(Object::toString).collect(Collectors.joining()));
+            }
         } catch (final LexerException e) {
             fail(e.getMessage());
         }
@@ -44,12 +46,12 @@ public class LexerTest {
         for (int i = 0; i < numberOfPrograms; i++) {
             final boolean testIncorrect = random.nextBoolean();
             final String program = generator.generateProgram(3, 20, !testIncorrect);
-            testTokenizableProgram(program);
+            testTokenizableProgram(program, false);
             if (testIncorrect) {
                 final int insertPosition = random.nextInt(program.length() + 1);
                 final int insertion = random.nextInt(INCORRECT_INSERTIONS.size());
-                testNonTokenizableProgram(
-                        program.substring(0, insertPosition) + INCORRECT_INSERTIONS.get(insertion) + program.substring(insertPosition));
+                testNonTokenizableProgram(program.substring(0, insertPosition) + INCORRECT_INSERTIONS.get(insertion) +
+                                          program.substring(insertPosition));
             }
         }
     }
@@ -106,30 +108,70 @@ public class LexerTest {
     @Test
     public void testWeirdWhitespaces() {
         testTokenizableProgram("""
-                                                                            
-                                                                            
-                                                                            
-                           let void main()
-                           {
-                           \s\s\s\sString     first:="Hello"     ;
-                           String \tsecond := "World";
-                           print(first \t\s
-                           \t+ second);
-                           }let Boolean   check_range \t(\tInteger   x ,Integer a,Integer b){
-                           return a<=      x;}""");
+                                                                                
+                                                                                
+                                                                                
+                               let void main()
+                               {
+                               \s\s\s\sString     first:="Hello"     ;
+                               String \tsecond := "World";
+                               print(first \t\s
+                               \t+ second);
+                               }let Boolean   check_range \t(\tInteger   x ,Integer a,Integer b){
+                               return a<=      x;}""", false);
+    }
+
+    @Test
+    public void writeTokenized() {
+        testTokenizableProgram("""
+                               let void main() {
+                               Integer a := 42;
+                               Integer b := 42;
+                               Integer result := bad_pow(a, 3) + bad_pow(b, 3);
+                               print(result);
+                               }
+                               let Integer bad_pow(Integer x, Integer p) {
+                               Integer result := 1; Integer i := 1;
+                               if (i<=p) {
+                               result := result * x;
+                               }
+                               return result;
+                               }
+                               let void main()
+                               {
+                               String first :="Hello";
+                               String second := "World";
+                               print(first + second);
+                               }
+                               let Boolean  check_range(Integer x, Integer a, Integer b) {
+                               return a <= x;
+                               }
+                               let void main() {
+                               Integer temp := 36;
+                               Integer c_first := read();
+                               Integer bSecond := read();
+                               if (checkRange(c_first, bSecond)) {
+                               print("Yes!");
+                               }
+                               else if (checkRange(c_first * 20, bSecond * 30)) {
+                               print("Maybe!");
+                               } else {
+                               print("No!");
+                               }
+                               }""", true);
     }
 
     @Test
     public void testFails() {
         testNonTokenizableProgram("""
-                             let void main()
-                             {
-                             String first := "Hello";
-                             String second := "World";
-                             print(first + second);
-                             }
-                             let Boolean check_range(Integer x, Integer a, Integer b) {
-                             return a < = x;
-                             }""");
+                                  let void main()
+                                  {
+                                  String first := "Hello";
+                                  String second := "World";
+                                  print(first + second);
+                                  }
+                                  let Boolean check_range(Integer x, Integer a, Integer b) {
+                                  return a < = x;
+                                  }""");
     }
 }

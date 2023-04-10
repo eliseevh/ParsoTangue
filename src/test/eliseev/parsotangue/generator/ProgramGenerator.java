@@ -1,5 +1,7 @@
 package eliseev.parsotangue.generator;
 
+import eliseev.parsotangue.lexer.token.Keyword;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -232,6 +234,9 @@ public class ProgramGenerator {
         final StringBuilder result = new StringBuilder();
         for (int i = 0; i < length; i++) {
             result.append(getRandom(IDENT_POSSIBLE_CHARS));
+        }
+        if (Keyword.POSSIBLE_VALUES.contains(result.toString())) {
+            return generateIdent();
         }
         return result.toString();
     }
