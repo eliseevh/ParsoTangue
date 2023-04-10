@@ -50,6 +50,11 @@ public class StringCharSource implements CharSource {
         return new LexerException(String.format("%s at %d:%d (\"%s\")", message, lineCount, linePos, getContext()));
     }
 
+    @Override
+    public Position getPosition() {
+        return new Position(lineCount, linePos);
+    }
+
     private String getContext() {
         final int left = Math.max(0, pos - CONTEXT_RADIUS);
         final int right = Math.min(source.length(), pos + CONTEXT_RADIUS);

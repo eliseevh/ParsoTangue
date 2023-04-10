@@ -1,16 +1,13 @@
 package eliseev.parsotangue.lexer.token;
 
-public record IntegerLiteral(int value) implements Token {
-    @Override
-    public String toString() {
-        return Integer.toString(value);
+import eliseev.parsotangue.lexer.Position;
+
+public final class IntegerLiteral extends Token {
+    public IntegerLiteral(final Integer value, final Position startPos, final Position endPos) {
+        super(value, startPos, endPos);
     }
 
-    @Override
-    public boolean equals(final Object other) {
-        if (other instanceof final IntegerLiteral integerLiteral) {
-            return value == integerLiteral.value;
-        }
-        return false;
+    public IntegerLiteral(final Object value) {
+        super(value);
     }
 }

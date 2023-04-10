@@ -1,23 +1,19 @@
 package eliseev.parsotangue.lexer.token;
 
-import java.util.Objects;
+import eliseev.parsotangue.lexer.Position;
+
 import java.util.Set;
 
-public record Typename(String value) implements Token {
+public final class Typename extends Token {
     public static final Set<String> POSSIBLE_VALUES = Set.of("void", "Integer", "String", "Boolean");
     private static final Set<String> VALUE_TYPES = Set.of("Integer", "String", "Boolean");
 
-    @Override
-    public String toString() {
-        return "Typename : " + value;
+    public Typename(final String value, final Position startPos, final Position endPos) {
+        super(value, startPos, endPos);
     }
 
-    @Override
-    public boolean equals(final Object other) {
-        if (other instanceof final Typename typename) {
-            return Objects.equals(value, typename.value);
-        }
-        return false;
+    public Typename(final Object value) {
+        super(value);
     }
 
     public boolean isValueType() {

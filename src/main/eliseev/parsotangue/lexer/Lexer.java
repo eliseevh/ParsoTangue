@@ -28,46 +28,47 @@ public class Lexer {
     public Optional<Token> nextToken() throws LexerException {
         final Token result;
         skipWhitespaces();
+        final Position startPos = source.getPosition();
         if (eof) {
             // No token
             result = null;
         } else if (test('+') || test('-') || test('*') || test('/') || test('%')) {
             // Arithmetical
-            result = new Operation(Character.toString(take()));
+            result = new Operation(Character.toString(take()), startPos, source.getPosition());
         } else if (skip(':')) {
             // Assign
             expect('=');
-            result = new SpecialSymbol(":=");
+            result = new SpecialSymbol(":=", startPos, source.getPosition());
         } else if (skip(',')) {
             // Comma
-            result = new SpecialSymbol(",");
+            result = new SpecialSymbol(",", startPos, source.getPosition());
         } else if (test('<') || test('>')) {
             // Comparison
             final StringBuilder token = new StringBuilder().append(take());
             if (skip('=')) {
                 token.append('=');
             }
-            result = new Operation(token.toString());
+            result = new Operation(token.toString(), startPos, source.getPosition());
         } else if (test('=') || test('!')) {
             // Comparison
             final String token = Character.toString(take()) + '=';
             expect('=');
-            result = new Operation(token);
+            result = new Operation(token, startPos, source.getPosition());
         } else if (skip('{')) {
             // Left curly bracket
-            result = new SpecialSymbol("{");
+            result = new SpecialSymbol("{", startPos, source.getPosition());
         } else if (skip('}')) {
             // Right curly bracket
-            result = new SpecialSymbol("}");
+            result = new SpecialSymbol("}", startPos, source.getPosition());
         } else if (skip('(')) {
             // Left parenthesis
-            result = new SpecialSymbol("(");
+            result = new SpecialSymbol("(", startPos, source.getPosition());
         } else if (skip(')')) {
             // Right parenthesis
-            result = new SpecialSymbol(")");
+            result = new SpecialSymbol(")", startPos, source.getPosition());
         } else if (skip(';')) {
             // Semicolon
-            result = new SpecialSymbol(";");
+            result = new SpecialSymbol(";", startPos, source.getPosition());
         } else if (skip('"')) {
             // String literal
             final StringBuilder value = new StringBuilder();
@@ -75,14 +76,14 @@ public class Lexer {
                 value.append(take());
             }
             expect('"');
-            result = new StringLiteral(value.toString());
+            result = new StringLiteral(value.toString(), startPos, source.getPosition());
         } else if (test(Character::isDigit)) {
             // Integer literal
             final StringBuilder number = new StringBuilder().append(take());
             while (test(Character::isDigit)) {
                 number.append(take());
             }
-            result = new IntegerLiteral(Integer.parseInt(number.toString()));
+            result = new IntegerLiteral(Integer.parseInt(number.toString()), startPos, source.getPosition());
         } else {
             // Boolean literal, ident, keyword or typename
             final StringBuilder tokenBuilder = new StringBuilder();
@@ -94,13 +95,13 @@ public class Lexer {
             }
             final String token = tokenBuilder.toString();
             if (BooleanLiteral.POSSIBLE_VALUES.contains(token)) {
-                result = new BooleanLiteral(Boolean.parseBoolean(token));
+                result = new BooleanLiteral(Boolean.parseBoolean(token), startPos, source.getPosition());
             } else if (Typename.POSSIBLE_VALUES.contains(token)) {
-                result = new Typename(token);
+                result = new Typename(token, startPos, source.getPosition());
             } else if (Keyword.POSSIBLE_VALUES.contains(token)) {
-                result = new Keyword(token);
+                result = new Keyword(token, startPos, source.getPosition());
             } else {
-                result = new Ident(token);
+                result = new Ident(token, startPos, source.getPosition());
             }
         }
 

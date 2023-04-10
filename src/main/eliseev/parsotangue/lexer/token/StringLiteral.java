@@ -1,18 +1,14 @@
 package eliseev.parsotangue.lexer.token;
 
-import java.util.Objects;
+import eliseev.parsotangue.lexer.Position;
 
-public record StringLiteral(String value) implements Token {
-    @Override
-    public String toString() {
-        return "\"" + value + "\"";
+public final class StringLiteral extends Token {
+
+    public StringLiteral(final String value, final Position startPos, final Position endPos) {
+        super(value, startPos, endPos);
     }
 
-    @Override
-    public boolean equals(final Object other) {
-        if (other instanceof final StringLiteral stringLiteral) {
-            return Objects.equals(value, stringLiteral.value);
-        }
-        return false;
+    public StringLiteral(final Object value) {
+        super(value);
     }
 }

@@ -1,17 +1,13 @@
 package eliseev.parsotangue.lexer.token;
 
-import java.util.Objects;
+import eliseev.parsotangue.lexer.Position;
 
-public record SpecialSymbol(String value) implements Token {
-    @Override
-    public String toString() {
-        return "Special symbol : " + value;
+public final class SpecialSymbol extends Token {
+    public SpecialSymbol(final String value, final Position startPos, final Position endPos) {
+        super(value, startPos, endPos);
     }
-    @Override
-    public boolean equals(final Object other) {
-        if (other instanceof final SpecialSymbol specialSymbol) {
-            return Objects.equals(value, specialSymbol.value);
-        }
-        return false;
+
+    public SpecialSymbol(final Object value) {
+        super(value);
     }
 }

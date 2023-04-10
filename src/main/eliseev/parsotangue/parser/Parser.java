@@ -1,5 +1,6 @@
 package eliseev.parsotangue.parser;
 
+import eliseev.parsotangue.lexer.Position;
 import eliseev.parsotangue.lexer.token.*;
 import eliseev.parsotangue.parser.ast.*;
 import eliseev.parsotangue.parser.ast.BooleanLiteral;
@@ -52,11 +53,7 @@ public class Parser {
     private Function parseFunction() throws ParserException {
         expect(LET);
         final FunctionType type = parseFunctionType();
-        final Token token = next();
-        if (!(token instanceof Ident)) {
-            throw unexpectedTokenError("function name", token);
-        }
-        final String name = ((Ident) token).name();
+        final String name = parseIdent();
         final FunctionParameters parameters = parseFunctionParameters();
         final CodeBlock body = parseCodeBlock();
         return new Function(name, type, parameters, body);
@@ -67,7 +64,7 @@ public class Parser {
         if (token instanceof final Typename type) {
             return new FunctionType(type.value());
         } else {
-            throw unexpectedTokenError("function type", token);
+            throw unexpectedTokenError("function type", token, token.startPos);
         }
     }
 
@@ -95,17 +92,17 @@ public class Parser {
     private String parseIdent() throws ParserException {
         final Token token = next();
         if (!(token instanceof Ident)) {
-            throw unexpectedTokenError("parameter name", token);
+            throw unexpectedTokenError("parameter name", token, token.startPos);
         }
-        return ((Ident) token).name();
+        return token.value();
     }
 
     private ValueType parseValueType() throws ParserException {
         final Token token = next();
         if (!(token instanceof final Typename type && type.isValueType())) {
-            throw unexpectedTokenError("parameter type", token);
+            throw unexpectedTokenError("parameter type", token, token.startPos);
         }
-        final String name = ((Typename) token).value();
+        final String name = token.value();
         return new ValueType(name);
     }
 
@@ -140,14 +137,14 @@ public class Parser {
             } else if (keyword.equals(RETURN)) {
                 return new LineExpression(parseReturnStatement());
             } else {
-                throw unexpectedTokenError("line expression", token);
+                throw unexpectedTokenError("line expression", token, token.startPos);
             }
         } else if (token.equals(LEFT_CURLY_BRACKET)) {
             position--;
             return new LineExpression(parseCodeBlock());
         } else {
             position--;
-            throw unexpectedTokenError("line expression", token);
+            throw unexpectedTokenError("line expression", token, token.startPos);
         }
     }
 
@@ -214,7 +211,7 @@ public class Parser {
         final ArithmeticValue left = parseArithmeticValue();
         final Token token = next();
         if (COMPARISON_OPERATIONS.contains(token)) {
-            final String operation = ((Operation) token).value();
+            final String operation = token.value();
             final ArithmeticValue right = parseArithmeticValue();
             return new Value(new OrderOperation(left, right, operation));
         }
@@ -226,7 +223,7 @@ public class Parser {
         final Term left = parseTerm();
         for (final Token operation : PLUS_MINUS_OPERATIONS) {
             if (skip(operation)) {
-                final String operationName = ((Operation) operation).value();
+                final String operationName = operation.value();
                 final ArithmeticValue right = parseArithmeticValue();
                 return new ArithmeticValue(new PlusMinusOperation(left, right, operationName));
             }
@@ -238,7 +235,7 @@ public class Parser {
         final Atom left = parseAtom();
         for (final Token operation : MUL_DIV_OPERATIONS) {
             if (skip(operation)) {
-                final String operationName = ((Operation) operation).value();
+                final String operationName = operation.value();
                 final Term right = parseTerm();
                 return new Term(new MulDivOperation(left, right, operationName));
             }
@@ -267,7 +264,7 @@ public class Parser {
             expect(RIGHT_PAR);
             return new Atom(value);
         } else {
-            throw unexpectedTokenError("value", token);
+            throw unexpectedTokenError("value", token, token.startPos);
         }
     }
 
@@ -278,7 +275,8 @@ public class Parser {
 
     private Token next() throws ParserException {
         if (position >= tokens.size()) {
-            throw unexpectedTokenError("token", "eof");
+            throw unexpectedTokenError("token", "eof",
+                                       tokens.isEmpty() ? new Position(0, 0) : tokens.get(tokens.size() - 1).startPos);
         }
         return tokens.get(position++);
     }
@@ -299,13 +297,14 @@ public class Parser {
     private void expect(final Token expected) throws ParserException {
         final Token token = next();
         if (!token.equals(expected)) {
-            throw unexpectedTokenError(expected, token);
+            throw unexpectedTokenError(expected, token, token.startPos);
         }
     }
 
-    private ParserException unexpectedTokenError(final Object expected, final Object got) {
+    private ParserException unexpectedTokenError(final Object expected, final Object got, final Position position) {
         return new ParserException(
-                "Expected " + wrapTokenInErrorMessage(expected) + ", got " + wrapTokenInErrorMessage(got));
+                "Expected " + wrapTokenInErrorMessage(expected) + ", got " + wrapTokenInErrorMessage(got) + "(at " +
+                position.line() + ":" + position.pos() + ")");
     }
 
     private String wrapTokenInErrorMessage(final Object token) {

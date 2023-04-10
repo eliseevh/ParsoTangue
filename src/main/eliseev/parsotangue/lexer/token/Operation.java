@@ -1,18 +1,13 @@
 package eliseev.parsotangue.lexer.token;
 
-import java.util.Objects;
+import eliseev.parsotangue.lexer.Position;
 
-public record Operation(String value) implements Token {
-    @Override
-    public String toString() {
-        return "Operation : " + value;
+public final class Operation extends Token {
+    public Operation(final String value, final Position startPos, final Position endPos) {
+        super(value, startPos, endPos);
     }
 
-    @Override
-    public boolean equals(final Object other) {
-        if (other instanceof final Operation operation) {
-            return Objects.equals(value, operation.value);
-        }
-        return false;
+    public Operation(final Object value) {
+        super(value);
     }
 }

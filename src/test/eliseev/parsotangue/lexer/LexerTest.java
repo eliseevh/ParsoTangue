@@ -20,7 +20,7 @@ public class LexerTest {
         try {
             final List<Token> tokens = lexer.tokenize();
             if (printTokenized) {
-                System.out.println(tokens.stream().map(Object::toString).collect(Collectors.joining()));
+                System.out.println(tokens);
             }
         } catch (final LexerException e) {
             fail(e.getMessage());

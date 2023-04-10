@@ -1,20 +1,17 @@
 package eliseev.parsotangue.lexer.token;
 
+import eliseev.parsotangue.lexer.Position;
+
 import java.util.Set;
 
-public record BooleanLiteral(boolean value) implements Token {
+public final class BooleanLiteral extends Token {
     public static final Set<String> POSSIBLE_VALUES = Set.of("true", "false");
 
-    @Override
-    public String toString() {
-        return Boolean.toString(value);
+    public BooleanLiteral(final Boolean value, final Position startPos, final Position endPos) {
+        super(value, startPos, endPos);
     }
 
-    @Override
-    public boolean equals(final Object other) {
-        if (other instanceof final BooleanLiteral booleanLiteral) {
-            return value == booleanLiteral.value;
-        }
-        return false;
+    public BooleanLiteral(final Object value) {
+        super(value);
     }
 }
