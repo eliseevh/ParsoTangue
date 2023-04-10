@@ -5,37 +5,53 @@ import eliseev.parsotangue.lexer.token.*;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class LexerTest {
+    private final List<String> INCORRECT_INSERTIONS = List.of("\"", " ! ", "@##@", "&a^", " = ");
+
+    private void testTokenizableProgram(final String program) {
+        final CharSource source = new StringCharSource(program);
+        final Lexer lexer = new Lexer(source);
+        try {
+            final List<Token> tokens = lexer.tokenize();
+            System.out.println(tokens.stream().map(Object::toString).collect(Collectors.joining()));
+        } catch (final LexerException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    private void testNonTokenizableProgram(final String program) {
+        final CharSource source = new StringCharSource(program);
+        final Lexer lexer = new Lexer(source);
+        try {
+            lexer.tokenize();
+            fail("Expected to throw on input \"" + System.lineSeparator() + program + System.lineSeparator() + "\"");
+        } catch (final LexerException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
     @Test
     public void testGenerated() {
         final ProgramGenerator generator = new ProgramGenerator(10, 20, 10, 1, 5, 15, 5, 5);
         final int numberOfPrograms = 100;
-        int countTotalChars = 0;
-        int countTotalTokens = 0;
+        final Random random = new Random(42);
         for (int i = 0; i < numberOfPrograms; i++) {
-            final String program = generator.generateProgram(3, 20);
-            System.out.println("CHARACTERS IN INPUT: " + program.length());
-            countTotalChars += program.length();
-            final CharSource source = new StringCharSource(program);
-            final Lexer lexer = new Lexer(source);
-            try {
-                final List<Token> tokens = lexer.tokenize();
-                System.out.println("TOKENS IN INPUT: " + tokens.size());
-                countTotalTokens += tokens.size();
-            } catch (final LexerException e) {
-                fail(e.getMessage());
+            final boolean testIncorrect = random.nextBoolean();
+            final String program = generator.generateProgram(3, 20, !testIncorrect);
+            testTokenizableProgram(program);
+            if (testIncorrect) {
+                final int insertPosition = random.nextInt(program.length() + 1);
+                final int insertion = random.nextInt(INCORRECT_INSERTIONS.size());
+                testNonTokenizableProgram(
+                        program.substring(0, insertPosition) + INCORRECT_INSERTIONS.get(insertion) + program.substring(insertPosition));
             }
         }
-        System.out.println(
-                "TOTAL CHARS: " + countTotalChars + System.lineSeparator() + "AVERAGE CHARS COUNT IN PROGRAM: " +
-                ((float) countTotalChars) / numberOfPrograms);
-        System.out.println("TOTAL TOKENS: " + countTotalTokens + System.lineSeparator() + "AVERAGE TOKENS COUNT IN " +
-                           "PROGRAM: " + ((float) countTotalTokens) / numberOfPrograms);
     }
 
     @Test
@@ -89,46 +105,31 @@ public class LexerTest {
 
     @Test
     public void testWeirdWhitespaces() {
-        final CharSource source = new StringCharSource("""
-                                                                                                        
-                                                                                                        
-                                                                                                        
-                                                       let void main()
-                                                       {
-                                                       \s\s\s\sString     first:="Hello"     ;
-                                                       String \tsecond := "World";
-                                                       print(first \t\s
-                                                       \t+ second);
-                                                       }let Boolean   check_range \t(\tInteger   x ,Integer a,Integer b){
-                                                       return a<=      x;}""");
-        final Lexer lexer = new Lexer(source);
-        try {
-            final List<Token> tokens = lexer.tokenize();
-            System.out.println(tokens.stream().map(Object::toString).collect(Collectors.joining()));
-            assertEquals(44, tokens.size());
-        } catch (final LexerException e) {
-            fail(e.getMessage());
-        }
+        testTokenizableProgram("""
+                                                                            
+                                                                            
+                                                                            
+                           let void main()
+                           {
+                           \s\s\s\sString     first:="Hello"     ;
+                           String \tsecond := "World";
+                           print(first \t\s
+                           \t+ second);
+                           }let Boolean   check_range \t(\tInteger   x ,Integer a,Integer b){
+                           return a<=      x;}""");
     }
 
     @Test
     public void testFails() {
-        final CharSource source = new StringCharSource("""
-                                                       let void main()
-                                                       {
-                                                       String first := "Hello";
-                                                       String second := "World";
-                                                       print(first + second);
-                                                       }
-                                                       let Boolean check_range(Integer x, Integer a, Integer b) {
-                                                       return a < = x;
-                                                       }""");
-        final Lexer lexer = new Lexer(source);
-        try {
-            lexer.tokenize();
-            fail("Expected to throw");
-        } catch (final LexerException e) {
-            System.err.println(e.getMessage());
-        }
+        testNonTokenizableProgram("""
+                             let void main()
+                             {
+                             String first := "Hello";
+                             String second := "World";
+                             print(first + second);
+                             }
+                             let Boolean check_range(Integer x, Integer a, Integer b) {
+                             return a < = x;
+                             }""");
     }
 }

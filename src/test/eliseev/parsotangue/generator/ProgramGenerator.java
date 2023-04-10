@@ -43,7 +43,8 @@ public class ProgramGenerator {
 
     public ProgramGenerator(
             final int maxStringLength, final int maxIdentLength, final int maxParametersCount, final int minWhitespaces,
-            final int maxWhitespaces, final int maxLinesInCodeBlock, final int maxCodeBlockDepth, final int maxValueDepth) {
+            final int maxWhitespaces, final int maxLinesInCodeBlock, final int maxCodeBlockDepth,
+            final int maxValueDepth) {
         this.maxStringLength = maxStringLength;
         this.maxIdentLength = maxIdentLength;
         this.maxParametersCount = maxParametersCount;
@@ -55,18 +56,20 @@ public class ProgramGenerator {
         this.random = new Random(42);
     }
 
-    public String generateProgram(final int minFunctions, final int maxFunctions) {
+    public String generateProgram(final int minFunctions, final int maxFunctions,
+                                  final boolean generateStringLiterals) {
         final StringBuilder result = new StringBuilder();
         final int functions = random.nextInt(minFunctions, maxFunctions + 1);
         for (int i = 0; i < functions; i++) {
-            result.append(generateWhitespaces()).append(generateFunction());
+            result.append(generateWhitespaces()).append(generateFunction(generateStringLiterals));
         }
         result.append(generateWhitespaces());
         return result.toString();
     }
 
-    private String generateFunction() {
-        return generateFunctionDeclarator() + generateCodeBlock(0);
+    private String generateFunction(
+            final boolean generateStringLiterals) {
+        return generateFunctionDeclarator() + generateCodeBlock(0, generateStringLiterals);
     }
 
     private String generateFunctionDeclarator() {
@@ -87,101 +90,113 @@ public class ProgramGenerator {
         return result.toString();
     }
 
-    private String generateCodeBlock(final int depth) {
+    private String generateCodeBlock(final int depth,
+                                     final boolean generateStringLiterals) {
         if (depth >= maxCodeBlockDepth) {
             return "{}";
         }
         final StringBuilder result = new StringBuilder().append("{");
         final int lines = random.nextInt(maxLinesInCodeBlock + 1);
         for (int i = 0; i < lines; i++) {
-            result.append(generateWhitespaces()).append(generateLineExpression(depth));
+            result.append(generateWhitespaces()).append(generateLineExpression(depth, generateStringLiterals));
         }
         result.append(generateWhitespaces()).append("}");
         return result.toString();
     }
-    private String generateLineExpression(final int depth) {
+    private String generateLineExpression(final int depth,
+                                          final boolean generateStringLiterals) {
         final int variantNumber = random.nextInt(6);
         return switch (variantNumber) {
-            case 0 -> generateVariableCreation();
-            case 1 -> generateVariableAssignment();
-            case 2 -> generateConditionalExpression(depth);
-            case 3 -> generateFunctionCall() + ";";
-            case 4 -> generateReturnStatement();
-            case 5 -> generateCodeBlock(depth + 1);
+            case 0 -> generateVariableCreation(generateStringLiterals);
+            case 1 -> generateVariableAssignment(generateStringLiterals);
+            case 2 -> generateConditionalExpression(depth, generateStringLiterals);
+            case 3 -> generateFunctionCall(depth, generateStringLiterals) + ";";
+            case 4 -> generateReturnStatement(generateStringLiterals);
+            case 5 -> generateCodeBlock(depth + 1, generateStringLiterals);
             default -> throw new AssertionError("Unreachable");
         };
     }
 
-    private String generateVariableCreation() {
-        return generateVariableType() + generateDelimiter() + generateVariableAssignment();
+    private String generateVariableCreation(
+            final boolean generateStringLiterals) {
+        return generateVariableType() + generateDelimiter() + generateVariableAssignment(generateStringLiterals);
     }
 
-    private String generateVariableAssignment() {
-        return generateIdent() + generateWhitespaces() + ":=" + generateWhitespaces() + generateValue(0) +
+    private String generateVariableAssignment(
+            final boolean generateStringLiterals) {
+        return generateIdent() + generateWhitespaces() + ":=" + generateWhitespaces() + generateValue(0, generateStringLiterals) +
                generateWhitespaces() + ";";
     }
-    private String generateConditionalExpression(final int depth) {
+    private String generateConditionalExpression(final int depth,
+                                                 final boolean generateStringLiterals) {
         final StringBuilder result = new StringBuilder();
-        result.append("if").append(generateLeftPar()).append(generateValue(0)).append(generateRightPar()).append(generateLineExpression(depth + 1));
+        result.append("if").append(generateLeftPar()).append(generateValue(0, generateStringLiterals)).append(generateRightPar()).append(generateLineExpression(depth + 1, generateStringLiterals));
         if (random.nextBoolean()) {
-            result.append(generateWhitespaces()).append("else").append(generateDelimiter()).append(generateLineExpression(depth + 1));
+            result.append(generateWhitespaces()).append("else").append(generateDelimiter()).append(generateLineExpression(depth + 1, generateStringLiterals));
         }
         return result.toString();
     }
-    private String generateReturnStatement() {
-        return "return" + generateDelimiter() + generateValue(0) + generateWhitespaces() + ";";
+    private String generateReturnStatement(
+            final boolean generateStringLiterals) {
+        return "return" + generateDelimiter() + generateValue(0, generateStringLiterals) + generateWhitespaces() + ";";
     }
 
-    private String generateValue(final int depth) {
+    private String generateValue(final int depth,
+                                 final boolean generateStringLiterals) {
         final StringBuilder result = new StringBuilder();
-        result.append(generateArithmeticValue(depth));
+        result.append(generateArithmeticValue(depth, generateStringLiterals));
         if (random.nextBoolean() && depth < maxValueDepth) {
             result.append(generateWhitespaces()).append(getRandom(ORDER_OPERATIONS)).append(generateWhitespaces())
-                  .append(generateArithmeticValue(depth + 1));
+                  .append(generateArithmeticValue(depth + 1, generateStringLiterals));
         }
         return result.toString();
     }
 
-    private String generateArithmeticValue(final int depth) {
+    private String generateArithmeticValue(final int depth,
+                                           final boolean generateStringLiterals) {
         final StringBuilder result = new StringBuilder();
-        result.append(generateTerm(depth + 1));
+        result.append(generateTerm(depth + 1, generateStringLiterals));
         if (random.nextBoolean() && depth < maxValueDepth) {
             result.append(generateWhitespaces()).append(getRandom(PLUS_MINUS_OPERATIONS))
-                  .append(generateWhitespaces()).append(generateArithmeticValue(depth + 1));
+                  .append(generateWhitespaces()).append(generateArithmeticValue(depth + 1, generateStringLiterals));
         }
         return result.toString();
     }
 
-    private String generateTerm(final int depth) {
+    private String generateTerm(final int depth,
+                                final boolean generateStringLiterals) {
         final StringBuilder result = new StringBuilder();
-        result.append(generateAtom(depth));
+        result.append(generateAtom(depth, generateStringLiterals));
         if (random.nextBoolean() && depth < maxValueDepth) {
             result.append(generateWhitespaces()).append(getRandom(MUL_DIV_OPERATIONS)).append(generateWhitespaces())
-                  .append(generateTerm(depth + 1));
+                  .append(generateTerm(depth + 1, generateStringLiterals));
 
         }
         return result.toString();
     }
 
-    private String generateAtom(final int depth) {
-        int numberOfVariants = 6;
-        if (depth >= maxValueDepth) {
-            numberOfVariants--;
+    private String generateAtom(final int depth,
+                                final boolean generateStringLiterals) {
+        final int variantNumber = random.nextInt(6);
+        if (depth >= maxValueDepth && (variantNumber == 3 || variantNumber == 5)) {
+            return generateAtom(depth, generateStringLiterals);
         }
-        final int variantNumber = random.nextInt(numberOfVariants);
-
+        if (variantNumber == 1 && !generateStringLiterals) {
+            return generateAtom(depth + 1, generateStringLiterals);
+        }
         return switch (variantNumber) {
             case 0 -> generateIntegerLiteral();
             case 1 -> generateStringLiteral();
             case 2 -> generateBoolLiteral();
-            case 3 -> generateFunctionCall();
+            case 3 -> generateFunctionCall(depth, generateStringLiterals);
             case 4 -> generateIdent();
-            case 5 -> "(" + generateWhitespaces() + generateValue(depth + 1) + generateWhitespaces() + ")";
+            case 5 -> "(" + generateWhitespaces() + generateValue(depth + 1, generateStringLiterals) + generateWhitespaces() + ")";
             default -> throw new AssertionError("Unreachable");
         };
     }
 
-    private String generateFunctionCall() {
+    private String generateFunctionCall(final int depth,
+            final boolean generateStringLiterals) {
         final StringBuilder result = new StringBuilder();
         result.append(generateIdent()).append(generateLeftPar());
         final int argumentsCount = random.nextInt(maxParametersCount + 1);
@@ -189,7 +204,7 @@ public class ProgramGenerator {
             if (i != 0) {
                 result.append(generateWhitespaces()).append(",").append(generateWhitespaces());
             }
-            result.append(generateIdent());
+            result.append(generateValue(depth + 1, generateStringLiterals));
         }
         result.append(generateWhitespaces()).append(")").append(generateWhitespaces());
         return result.toString();
