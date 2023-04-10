@@ -88,13 +88,14 @@ public class LexerTest {
                                                        print(first + second);
                                                        }""");
         final List<Token> actual =
-                List.of(new Keyword(Keyword.parseType("let")), new Typename(Typename.parseType("void")),
-                        new Ident("main"), new Parenthesis(true), new Parenthesis(false), new CurlyBracket(true),
-                        new Typename(Typename.parseType("String")), new Ident("first"), new Assign(),
-                        new StringLiteral("Hello"), new Semicolon(), new Typename(Typename.parseType("String")),
-                        new Ident("second"), new Assign(), new StringLiteral("World"), new Semicolon(),
-                        new Ident("print"), new Parenthesis(true), new Ident("first"), new Arithmetical("+"),
-                        new Ident("second"), new Parenthesis(false), new Semicolon(), new CurlyBracket(false));
+                List.of(new Keyword("let"), new Typename("void"),
+                        new Ident("main"), new SpecialSymbol("("), new SpecialSymbol(")"), new SpecialSymbol("{"),
+                        new Typename("String"), new Ident("first"), new SpecialSymbol(":="),
+                        new StringLiteral("Hello"), new SpecialSymbol(";"), new Typename("String"),
+                        new Ident("second"), new SpecialSymbol(":="), new StringLiteral("World"), new SpecialSymbol(
+                                ";"),
+                        new Ident("print"), new SpecialSymbol("("), new Ident("first"), new Operation("+"),
+                        new Ident("second"), new SpecialSymbol(")"), new SpecialSymbol(";"), new SpecialSymbol("}"));
         final Lexer lexer = new Lexer(source);
         try {
             final List<Token> tokens = lexer.tokenize();

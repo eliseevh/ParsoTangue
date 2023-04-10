@@ -1,0 +1,25 @@
+<source_file> ::= (<token> | <whitespace>)*
+
+<whitespace> ::= "regexp:\w"
+
+<token> ::= <operation> | <literal> | <keyword> | <special_symbol> | <typename> | <ident>
+
+<operation> ::= "+" | "-"
+              | "*" | "/" | "%"
+              | "<=" | ">=" | "<" | ">" | "==" | "!="
+
+<literal> ::= <integer_literal> | <string_literal> | <boolean_literal>
+
+<integer_literal> ::= "regexp:[0-9]"+
+
+<string_literal> ::= "\"" "regexp:[^\"]"* "\""
+
+<boolean_literal> ::= "true" | "false"
+
+<keyword> ::= "let" | "return" | "if" | "else"
+
+<special_symbol> ::= "(" | ")" | "{" | "}" | ":=" | ";" | ","
+
+<typename> ::= "void" | "Integer" | "String" | "Boolean"
+
+<ident> ::= ("regexp[a-zA-Z_]"+) ! (<typename> | <keyword> | <boolean_literal>)

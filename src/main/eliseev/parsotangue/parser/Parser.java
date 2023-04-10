@@ -11,20 +11,23 @@ import java.util.List;
 import java.util.Set;
 
 public class Parser {
-    private static final Token LEFT_PAR = new Parenthesis(true);
-    private static final Token RIGHT_PAR = new Parenthesis(false);
-    private static final Token LEFT_CURLY_BRACKET = new CurlyBracket(true);
-    private static final Token RIGHT_CURLY_BRACKET = new CurlyBracket(false);
-    private static final Token ASSIGN = new Assign();
-    private static final Token IF = new Keyword(Keyword.KeywordType.IF);
-    private static final Token ELSE = new Keyword(Keyword.KeywordType.ELSE);
-    private static final Token RETURN = new Keyword(Keyword.KeywordType.RETURN);
-    private static final Token SEMICOLON = new Semicolon();
-    private static final Set<Token> PLUS_MINUS_OPERATIONS = Set.of(new Arithmetical("+"), new Arithmetical("-"));
-    private static final Set<Token> MUL_DIV_OPERATIONS = Set.of(new Arithmetical("*"), new Arithmetical("/"),
-                                                                new Arithmetical("%"));
-    private static final Token LET = new Keyword(Keyword.KeywordType.LET);
-    private static final Token COMMA = new Comma();
+    private static final Token LEFT_PAR = new SpecialSymbol("(");
+    private static final Token RIGHT_PAR = new SpecialSymbol(")");
+    private static final Token LEFT_CURLY_BRACKET = new SpecialSymbol("{");
+    private static final Token RIGHT_CURLY_BRACKET = new SpecialSymbol("}");
+    private static final Token ASSIGN = new SpecialSymbol(":=");
+    private static final Token COMMA = new SpecialSymbol(",");
+    private static final Token SEMICOLON = new SpecialSymbol(";");
+    private static final Token LET = new Keyword("let");
+    private static final Token RETURN = new Keyword("return");
+    private static final Token IF = new Keyword("if");
+    private static final Token ELSE = new Keyword("else");
+    private static final Set<Token> PLUS_MINUS_OPERATIONS = Set.of(new Operation("+"), new Operation("-"));
+    private static final Set<Token> MUL_DIV_OPERATIONS =
+            Set.of(new Operation("*"), new Operation("/"), new Operation("%"));
+    private static final Set<Token> COMPARISON_OPERATIONS =
+            Set.of(new Operation("<="), new Operation(">="), new Operation("<"), new Operation(">"),
+                   new Operation("=="), new Operation("!="));
 
     private final List<Token> tokens;
     private int position;
@@ -62,7 +65,7 @@ public class Parser {
     private FunctionType parseFunctionType() throws ParserException {
         final Token token = next();
         if (token instanceof final Typename type) {
-            return new FunctionType(type.getTypename());
+            return new FunctionType(type.value());
         } else {
             throw unexpectedTokenError("function type", token);
         }
@@ -94,7 +97,7 @@ public class Parser {
         if (!(token instanceof Ident)) {
             throw unexpectedTokenError("parameter name", token);
         }
-        return  ((Ident) token).name();
+        return ((Ident) token).name();
     }
 
     private ValueType parseValueType() throws ParserException {
@@ -102,7 +105,7 @@ public class Parser {
         if (!(token instanceof final Typename type && type.isValueType())) {
             throw unexpectedTokenError("parameter type", token);
         }
-        final String name = ((Typename) token).getTypename();
+        final String name = ((Typename) token).value();
         return new ValueType(name);
     }
 
@@ -123,7 +126,7 @@ public class Parser {
         } else if (token instanceof Ident) {
             token = next();
             position -= 2;
-            if (token instanceof Parenthesis) {
+            if (token.equals(LEFT_PAR)) {
                 final FunctionCall functionCall = parseFunctionCall();
                 expect(SEMICOLON);
                 return new LineExpression(functionCall);
@@ -132,14 +135,14 @@ public class Parser {
             }
         } else if (token instanceof final Keyword keyword) {
             position--;
-            if (keyword.type() == Keyword.KeywordType.IF) {
+            if (keyword.equals(IF)) {
                 return new LineExpression(parseConditionalExpression());
-            } else if (keyword.type() == Keyword.KeywordType.RETURN) {
+            } else if (keyword.equals(RETURN)) {
                 return new LineExpression(parseReturnStatement());
             } else {
                 throw unexpectedTokenError("line expression", token);
             }
-        } else if (token instanceof final CurlyBracket leftBracket && leftBracket.isLeft()) {
+        } else if (token.equals(LEFT_CURLY_BRACKET)) {
             position--;
             return new LineExpression(parseCodeBlock());
         } else {
@@ -162,6 +165,7 @@ public class Parser {
         final ArgumentList arguments = parseArgumentList();
         return new FunctionCall(name, arguments);
     }
+
     private ArgumentList parseArgumentList() throws ParserException {
         expect(LEFT_PAR);
         final List<Value> arguments = new ArrayList<>();
@@ -209,8 +213,8 @@ public class Parser {
     private Value parseValue() throws ParserException {
         final ArithmeticValue left = parseArithmeticValue();
         final Token token = next();
-        if (token instanceof Comparison) {
-            final String operation = ((Comparison) token).value();
+        if (COMPARISON_OPERATIONS.contains(token)) {
+            final String operation = ((Operation) token).value();
             final ArithmeticValue right = parseArithmeticValue();
             return new Value(new OrderOperation(left, right, operation));
         }
@@ -222,7 +226,7 @@ public class Parser {
         final Term left = parseTerm();
         for (final Token operation : PLUS_MINUS_OPERATIONS) {
             if (skip(operation)) {
-                final String operationName = ((Arithmetical) operation).value();
+                final String operationName = ((Operation) operation).value();
                 final ArithmeticValue right = parseArithmeticValue();
                 return new ArithmeticValue(new PlusMinusOperation(left, right, operationName));
             }
@@ -234,7 +238,7 @@ public class Parser {
         final Atom left = parseAtom();
         for (final Token operation : MUL_DIV_OPERATIONS) {
             if (skip(operation)) {
-                final String operationName = ((Arithmetical) operation).value();
+                final String operationName = ((Operation) operation).value();
                 final Term right = parseTerm();
                 return new Term(new MulDivOperation(left, right, operationName));
             }
@@ -300,7 +304,8 @@ public class Parser {
     }
 
     private ParserException unexpectedTokenError(final Object expected, final Object got) {
-        return new ParserException("Expected " + wrapTokenInErrorMessage(expected) + ", got " + wrapTokenInErrorMessage(got));
+        return new ParserException(
+                "Expected " + wrapTokenInErrorMessage(expected) + ", got " + wrapTokenInErrorMessage(got));
     }
 
     private String wrapTokenInErrorMessage(final Object token) {

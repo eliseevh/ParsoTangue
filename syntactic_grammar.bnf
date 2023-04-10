@@ -1,0 +1,51 @@
+<program> ::= <function>*
+
+<function> ::= <function_decl> <code_block>
+<function_decl> ::= "let" <function_type> <ident> <parameter_list>
+<parameter_list> ::= "(" (<parameter> ("," <parameter>)*)? ")"
+<parameter> ::= <value_type> <ident>
+
+
+<code_block> ::= "{" <line_expr>* "}"
+<line_expr> ::= <variable_creation>
+              | <variable_assignment>
+              | <conditional_expr>
+              | <function_call> ";"
+              | <return_statement>
+              | <code_block>
+
+<variable_creation> ::= <value_type> <variable_assignment>
+<variable_assignment> ::= <ident> ":=" <value> ";"
+
+<conditional_expr> ::= "if" "(" <value> ")" <line_expr> <else>?
+<else> ::= "else" <line_expr>
+
+<function_call> ::= <ident> <argument_list>
+<argument_list> ::= "(" (<value> ("," <value>)*)? ")"
+
+<return_statement> ::= "return" <value> ";"
+
+
+<value> ::= <arithmetic_value> (<order_operation> <arithmetic_value>)?
+<arithmetic_value> ::= <term> | <term> <plus_minus_operation> <arithmetic_value>
+<term> ::= <atom> | <atom> <mul_div_operation> <term>
+<atom> ::= <integer_literal>
+         | <string_literal>
+         | <boolean_literal>
+         | <function_call>
+         | <ident>
+         | "(" <value> ")"
+
+<integer_literal> ::= // <integer_literal> token
+<string_literal> ::= // <string_literal> token
+<boolean_literal> ::= "true" | "false"
+
+
+<function_type> ::= <value_type> | "void"
+<value_type> ::= "Integer" | "String" | "Boolean"
+
+<order_operation> ::= "<=" | ">=" | "<" | ">" | "==" | "!="
+<plus_minus_operation> ::= "+" | "-"
+<mul_div_operation> ::= "*" | "/" | "%"
+
+<ident> ::= // <ident> token

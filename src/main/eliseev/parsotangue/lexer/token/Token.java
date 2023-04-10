@@ -1,5 +1,5 @@
 package eliseev.parsotangue.lexer.token;
 
-public sealed interface Token permits Arithmetical, Assign, BooleanLiteral, Comma, Comparison, CurlyBracket, Ident,
-                                      IntegerLiteral, Keyword, Parenthesis, Semicolon, StringLiteral, Typename {
+public sealed interface Token permits BooleanLiteral, Ident, IntegerLiteral, Keyword, Operation, SpecialSymbol,
+                                      StringLiteral, Typename {
 }

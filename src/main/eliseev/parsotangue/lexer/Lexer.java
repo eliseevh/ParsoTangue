@@ -33,43 +33,43 @@ public class Lexer {
             result = null;
         } else if (test('+') || test('-') || test('*') || test('/') || test('%')) {
             // Arithmetical
-            result = new Arithmetical(Character.toString(take()));
+            result = new Operation(Character.toString(take()));
         } else if (skip(':')) {
             // Assign
             expect('=');
-            result = new Assign();
+            result = new SpecialSymbol(":=");
         } else if (skip(',')) {
             // Comma
-            result = new Comma();
+            result = new SpecialSymbol(",");
         } else if (test('<') || test('>')) {
             // Comparison
             final StringBuilder token = new StringBuilder().append(take());
             if (skip('=')) {
                 token.append('=');
             }
-            result = new Comparison(token.toString());
+            result = new Operation(token.toString());
         } else if (test('=') || test('!')) {
             // Comparison
             final String token = Character.toString(take()) + '=';
             expect('=');
-            result = new Comparison(token);
+            result = new Operation(token);
         } else if (skip('{')) {
-            // CurlyBracket
-            result = new CurlyBracket(true);
+            // Left curly bracket
+            result = new SpecialSymbol("{");
         } else if (skip('}')) {
-            // CurlyBracket
-            result = new CurlyBracket(false);
+            // Right curly bracket
+            result = new SpecialSymbol("}");
         } else if (skip('(')) {
-            // Parenthesis
-            result = new Parenthesis(true);
+            // Left parenthesis
+            result = new SpecialSymbol("(");
         } else if (skip(')')) {
-            // Parenthesis
-            result = new Parenthesis(false);
+            // Right parenthesis
+            result = new SpecialSymbol(")");
         } else if (skip(';')) {
             // Semicolon
-            result = new Semicolon();
+            result = new SpecialSymbol(";");
         } else if (skip('"')) {
-            // StringLiteral
+            // String literal
             final StringBuilder value = new StringBuilder();
             while (!test('"')) {
                 value.append(take());
@@ -77,14 +77,14 @@ public class Lexer {
             expect('"');
             result = new StringLiteral(value.toString());
         } else if (test(Character::isDigit)) {
-            // IntegerLiteral
+            // Integer literal
             final StringBuilder number = new StringBuilder().append(take());
             while (test(Character::isDigit)) {
                 number.append(take());
             }
             result = new IntegerLiteral(Integer.parseInt(number.toString()));
         } else {
-            // BooleanLiteral, Ident, Keyword or Typename
+            // Boolean literal, ident, keyword or typename
             final StringBuilder tokenBuilder = new StringBuilder();
             while (test(IS_IDENT_CHARACTER)) {
                 tokenBuilder.append(take());
@@ -96,9 +96,9 @@ public class Lexer {
             if (BooleanLiteral.POSSIBLE_VALUES.contains(token)) {
                 result = new BooleanLiteral(Boolean.parseBoolean(token));
             } else if (Typename.POSSIBLE_VALUES.contains(token)) {
-                result = new Typename(Typename.parseType(token));
+                result = new Typename(token);
             } else if (Keyword.POSSIBLE_VALUES.contains(token)) {
-                result = new Keyword(Keyword.parseType(token));
+                result = new Keyword(token);
             } else {
                 result = new Ident(token);
             }
