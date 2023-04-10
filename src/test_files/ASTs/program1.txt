@@ -1,0 +1,35 @@
+(Program [
+    (Function (main) {
+        Body : (Code block[]),
+        Parameters : (Function parameters [
+            (Function parameter (a) {
+                Type : (Value type (Integer))
+            }),
+            (Function parameter (b) {
+                Type : (Value type (Boolean))
+            })
+        ]),
+        Type : (Function type (void))
+    }),
+    (Function (t) {
+        Body : (Code block [
+            (Conditional expression {
+                "else" block : (Code block [
+                    (Return {
+                        Value : (Integer literal (3))
+                    })
+                ]),
+                "if" block : (Variable assignment (t) {
+                    Value : (Integer literal (3))
+                }),
+                Condition : (Variable (t))
+            })
+        ]),
+        Parameters : (Function parameters [
+            (Function parameter (t) {
+                Type : (Value type (String))
+            })
+        ]),
+        Type : (Function type (Integer))
+    })
+])

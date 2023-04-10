@@ -1,0 +1,2 @@
+
+let void main(Integer a  ,Boolean b){}let Integer t(String t){if(t)t:=3;else{return(3);}}

@@ -1,0 +1,79 @@
+(Program [
+    (Function (a) {
+        Body : (Code block [
+            (Function call (print) {
+                Arguments : (Argument list [
+                    (Order operation (>=) {
+                        Left argument : (MulDiv operation (%) {
+                            Left argument : (Integer literal (3)),
+                            Right argument : (Integer literal (2))
+                        }),
+                        Right argument : (Variable (a))
+                    })
+                ])
+            }),
+            (Conditional expression {
+                "else" block : (Return {
+                    Value : (Variable (x))
+                }),
+                "if" block : (Variable creation (x) {
+                    Type : (Value type (Integer)),
+                    Value : (Integer literal (3))
+                }),
+                Condition : (Order operation (>=) {
+                    Left argument : (Variable (x)),
+                    Right argument : (PlusMinus operation (+) {
+                        Left argument : (Integer literal (3)),
+                        Right argument : (MulDiv operation (%) {
+                            Left argument : (Integer literal (2)),
+                            Right argument : (Order operation (<) {
+                                Left argument : (String literal (s)),
+                                Right argument : (Boolean literal (true))
+                            })
+                        })
+                    })
+                })
+            }),
+            (Code block [
+                (Return {
+                    Value : (PlusMinus operation (-) {
+                        Left argument : (String literal ()),
+                        Right argument : (Boolean literal (false))
+                    })
+                }),
+                (Variable creation (v) {
+                    Type : (Value type (String)),
+                    Value : (Order operation (>=) {
+                        Left argument : (MulDiv operation (*) {
+                            Left argument : (Boolean literal (true)),
+                            Right argument : (String literal (10))
+                        }),
+                        Right argument : (PlusMinus operation (-) {
+                            Left argument : (Integer literal (2)),
+                            Right argument : (PlusMinus operation (+) {
+                                Left argument : (Variable (x)),
+                                Right argument : (Function call (false_) {
+                                    Arguments : (Argument list [
+                                        (Integer literal (33)),
+                                        (Variable (aaa)),
+                                        (Boolean literal (true)),
+                                        (String literal (    ))
+                                    ])
+                                })
+                            })
+                        })
+                    })
+                })
+            ])
+        ]),
+        Parameters : (Function parameters [
+            (Function parameter (a) {
+                Type : (Value type (Integer))
+            }),
+            (Function parameter (a) {
+                Type : (Value type (String))
+            })
+        ]),
+        Type : (Function type (void))
+    })
+])

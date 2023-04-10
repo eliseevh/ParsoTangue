@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -39,7 +38,7 @@ public class LexerTest {
     }
 
     @Test
-    public void testGenerated() {
+    public void generated() {
         final ProgramGenerator generator = new ProgramGenerator(10, 20, 10, 1, 5, 15, 5, 5);
         final int numberOfPrograms = 100;
         final Random random = new Random(42);
@@ -57,7 +56,7 @@ public class LexerTest {
     }
 
     @Test
-    public void testCount() {
+    public void count() {
         final CharSource source = new StringCharSource("""
                                                        let void main()
                                                        {
@@ -71,7 +70,7 @@ public class LexerTest {
         final Lexer lexer = new Lexer(source);
         try {
             final List<Token> tokens = lexer.tokenize();
-            System.out.println(tokens.stream().map(Object::toString).collect(Collectors.joining()));
+            System.out.println(tokens);
             assertEquals(44, tokens.size());
         } catch (final LexerException e) {
             fail(e.getMessage());
@@ -79,7 +78,7 @@ public class LexerTest {
     }
 
     @Test
-    public void testContent() {
+    public void content() {
         final CharSource source = new StringCharSource("""
                                                        let void main()
                                                        {
@@ -99,7 +98,7 @@ public class LexerTest {
         final Lexer lexer = new Lexer(source);
         try {
             final List<Token> tokens = lexer.tokenize();
-            System.out.println(tokens.stream().map(Object::toString).collect(Collectors.joining()));
+            System.out.println(tokens);
             assertEquals(actual, tokens);
         } catch (final LexerException e) {
             fail(e.getMessage());
@@ -107,7 +106,7 @@ public class LexerTest {
     }
 
     @Test
-    public void testWeirdWhitespaces() {
+    public void weirdWhitespaces() {
         testTokenizableProgram("""
                                                                                 
                                                                                 
@@ -163,7 +162,7 @@ public class LexerTest {
     }
 
     @Test
-    public void testFails() {
+    public void fails() {
         testNonTokenizableProgram("""
                                   let void main()
                                   {

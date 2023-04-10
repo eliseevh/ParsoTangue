@@ -1,0 +1,3 @@
+let void main((String x, Integer a) {
+return "";
+}

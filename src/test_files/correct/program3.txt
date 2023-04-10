@@ -1,0 +1,15 @@
+let void a(
+
+
+Integer a, String a)
+
+		{ print(3 % 2 >= a);
+	  	if (x >= 3 + 2 % ("s" < true)) Integer x := 3;
+	  else return x;
+	  { 	return "" - false; String v := true * "10" >= 2 - (x + false_(33, aaa, true, "    "));
+
+
+
+
+	  }}
+

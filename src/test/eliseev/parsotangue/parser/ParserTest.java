@@ -1,20 +1,25 @@
 package eliseev.parsotangue.parser;
 
 import eliseev.parsotangue.generator.ProgramGenerator;
-import eliseev.parsotangue.lexer.CharSource;
-import eliseev.parsotangue.lexer.Lexer;
-import eliseev.parsotangue.lexer.LexerException;
-import eliseev.parsotangue.lexer.StringCharSource;
+import eliseev.parsotangue.lexer.*;
 import eliseev.parsotangue.parser.ast.Program;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 public class ParserTest {
-    private final List<String> INCORRECT_INSERTIONS = List.of(" + + ", "\"qwerty\"", "-<", "><", "===", ";", "Boolan x := true;");
+    private final List<String> INCORRECT_INSERTIONS =
+            List.of(" + + ", "\"qwerty\"", "-<", "><", "===", ";", "Boolan x := true;");
 
     private void testCorrectProgram(final String program, final boolean printAST) {
         final CharSource source = new StringCharSource(program);
@@ -43,7 +48,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testGenerated() {
+    public void generated() {
         final ProgramGenerator generator = new ProgramGenerator(10, 20, 10, 1, 5, 15, 5, 5);
         final int numberOfPrograms = 100;
         final Random random = new Random(42);
@@ -98,5 +103,64 @@ public class ParserTest {
                            print("No!");
                            }
                            }""", true);
+    }
+
+    @Test
+    public void correctFiles() {
+        final Path correctFilesFolder = Path.of("src", "test_files", "correct");
+        final Path astFolder;
+        try {
+            astFolder = Files.createDirectories(correctFilesFolder.getParent().resolve("ASTs"));
+        } catch (final IOException e) {
+            fail(e.getMessage());
+            return;
+        }
+        class CorrectFileVisitor extends SimpleFileVisitor<Path> {
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                try (final Reader reader = Files.newBufferedReader(file)) {
+                    Files.writeString(astFolder.resolve(correctFilesFolder.relativize(file)),
+                                      new Parser(new Lexer(new ReaderCharSource(reader)).tokenize()).parse()
+                                                                                                    .toString());
+                } catch (final ParserException | LexerException e) {
+                    throw new IOException(e);
+                }
+                return super.visitFile(file, attrs);
+            }
+        }
+        try {
+            Files.walkFileTree(correctFilesFolder, new CorrectFileVisitor());
+        } catch (final IOException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void incorrectFiles() {
+        final Path incorrectFilesFolder = Path.of("src", "test_files", "incorrect");
+        final Path errorsFolder;
+        try {
+            errorsFolder = Files.createDirectories(incorrectFilesFolder.getParent().resolve("errors"));
+        } catch (final IOException e) {
+            fail(e.getMessage());
+            return;
+        }
+        class CorrectFileVisitor extends SimpleFileVisitor<Path> {
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                try (final Reader reader = Files.newBufferedReader(file)) {
+                    new Parser(new Lexer(new ReaderCharSource(reader)).tokenize()).parse();
+                    fail("Expected to throw in file " + file);
+                } catch (final ParserException | LexerException e) {
+                    Files.writeString(errorsFolder.resolve(incorrectFilesFolder.relativize(file)), e.getMessage());
+                }
+                return super.visitFile(file, attrs);
+            }
+        }
+        try {
+            Files.walkFileTree(incorrectFilesFolder, new CorrectFileVisitor());
+        } catch (final IOException e) {
+            fail(e.getMessage());
+        }
     }
 }
