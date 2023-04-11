@@ -19,4 +19,7 @@ public class Atom extends AbstractWrapperASTNode {
     public Atom(final Value value) {
         super(value);
     }
+    public Atom(final UnaryOperation unaryOperation) {
+        super(unaryOperation);
+    }
 }

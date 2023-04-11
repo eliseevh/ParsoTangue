@@ -1,0 +1,43 @@
+(Program [
+    (Function (main) {
+        Body : (Code block [
+            (Variable creation (x) {
+                Type : (Value type (Integer)),
+                Value : (PlusMinus operation (+) {
+                    Left argument : (Unary operation (-) {
+                        Inner : (Integer literal (3))
+                    }),
+                    Right argument : (Unary operation (+) {
+                        Inner : (Unary operation (-) {
+                            Inner : (Unary operation (-) {
+                                Inner : (Integer literal (2))
+                            })
+                        })
+                    })
+                })
+            }),
+            (Function call (print) {
+                Arguments : (Argument list [
+                    (PlusMinus operation (+) {
+                        Left argument : (Unary operation (-) {
+                            Inner : (Variable (x))
+                        }),
+                        Right argument : (MulDiv operation (*) {
+                            Left argument : (Unary operation (-) {
+                                Inner : (Boolean literal (true))
+                            }),
+                            Right argument : (Unary operation (-) {
+                                Inner : (PlusMinus operation (+) {
+                                    Left argument : (Integer literal (7)),
+                                    Right argument : (Integer literal (2))
+                                })
+                            })
+                        })
+                    })
+                ])
+            })
+        ]),
+        Parameters : (Function parameters[]),
+        Type : (Function type (void))
+    })
+])

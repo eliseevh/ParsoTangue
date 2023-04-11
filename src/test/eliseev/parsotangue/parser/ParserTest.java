@@ -19,7 +19,7 @@ import static org.junit.Assert.fail;
 
 public class ParserTest {
     private final List<String> INCORRECT_INSERTIONS =
-            List.of(" + + ", "\"qwerty\"", "-<", "><", "===", ";", "Boolan x := true;");
+            List.of(" + >+ ", "\"qwerty\"", "-<", "><", "===", ";", "Boolan x := true;");
 
     private void testCorrectProgram(final String program, final boolean printAST) {
         final CharSource source = new StringCharSource(program);

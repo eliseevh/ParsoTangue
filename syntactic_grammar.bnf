@@ -35,6 +35,8 @@
          | <function_call>
          | <ident>
          | "(" <value> ")"
+         | "+" <atom>
+         | "-" <atom>
 
 <integer_literal> ::= // <integer_literal> token
 <string_literal> ::= // <string_literal> token

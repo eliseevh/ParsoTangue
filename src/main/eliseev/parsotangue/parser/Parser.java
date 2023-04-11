@@ -266,6 +266,9 @@ public class Parser {
             final Value value = parseValue();
             expect(RIGHT_PAR);
             return new Atom(value);
+        } else if (PLUS_MINUS_OPERATIONS.contains(token)) {
+            final Atom atom = parseAtom();
+            return new Atom(new UnaryOperation(atom, token.value()));
         } else {
             throw unexpectedTokenError("value", token, token.startPos);
         }
