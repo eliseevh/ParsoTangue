@@ -23,7 +23,7 @@
 <function_call> ::= <ident> <argument_list>
 <argument_list> ::= "(" (<value> ("," <value>)*)? ")"
 
-<return_statement> ::= "return" <value> ";"
+<return_statement> ::= "return" <value>? ";"
 
 
 <value> ::= <arithmetic_value> (<order_operation> <arithmetic_value>)?

@@ -202,6 +202,9 @@ public class Parser {
 
     private ReturnStatement parseReturnStatement() throws ParserException {
         expect(RETURN);
+        if (skip(SEMICOLON)) {
+            return new ReturnStatement();
+        }
         final Value value = parseValue();
         expect(SEMICOLON);
         return new ReturnStatement(value);
