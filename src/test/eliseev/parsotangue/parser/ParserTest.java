@@ -1,12 +1,12 @@
 package eliseev.parsotangue.parser;
 
+import eliseev.parsotangue.ParsoTangueParser;
 import eliseev.parsotangue.generator.ProgramGenerator;
-import eliseev.parsotangue.lexer.*;
+import eliseev.parsotangue.lexer.LexerException;
 import eliseev.parsotangue.parser.ast.Program;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,11 +22,8 @@ public class ParserTest {
             List.of(" + >+ ", "\"qwerty\"", "-<", "><", "===", ";", "Boolan x := true;");
 
     private void testCorrectProgram(final String program, final boolean printAST) {
-        final CharSource source = new StringCharSource(program);
-        final Lexer lexer = new Lexer(source);
         try {
-            final Parser parser = new Parser(lexer.tokenize());
-            final Program ast = parser.parse();
+            final Program ast = ParsoTangueParser.parse(program);
             if (printAST) {
                 System.out.println(ast);
             }
@@ -36,11 +33,8 @@ public class ParserTest {
     }
 
     private void testIncorrectProgram(final String program) {
-        final CharSource source = new StringCharSource(program);
-        final Lexer lexer = new Lexer(source);
         try {
-            final Parser parser = new Parser(lexer.tokenize());
-            parser.parse();
+            ParsoTangueParser.parse(program);
             fail("Expected to throw on input \"" + System.lineSeparator() + program + System.lineSeparator() + "\"");
         } catch (final LexerException | ParserException e) {
             System.err.println(e.getMessage());
@@ -118,10 +112,9 @@ public class ParserTest {
         class CorrectFileVisitor extends SimpleFileVisitor<Path> {
             @Override
             public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-                try (final Reader reader = Files.newBufferedReader(file)) {
+                try {
                     Files.writeString(astFolder.resolve(correctFilesFolder.relativize(file)),
-                                      new Parser(new Lexer(new ReaderCharSource(reader)).tokenize()).parse()
-                                                                                                    .toString());
+                                      ParsoTangueParser.parse(file).toString());
                 } catch (final ParserException | LexerException e) {
                     throw new IOException(e);
                 }
@@ -148,8 +141,8 @@ public class ParserTest {
         class CorrectFileVisitor extends SimpleFileVisitor<Path> {
             @Override
             public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-                try (final Reader reader = Files.newBufferedReader(file)) {
-                    new Parser(new Lexer(new ReaderCharSource(reader)).tokenize()).parse();
+                try {
+                    ParsoTangueParser.parse(file);
                     fail("Expected to throw in file " + file);
                 } catch (final ParserException | LexerException e) {
                     Files.writeString(errorsFolder.resolve(incorrectFilesFolder.relativize(file)), e.getMessage());
