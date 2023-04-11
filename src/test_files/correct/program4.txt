@@ -1,0 +1,10 @@
+/**
+ * Program for testing comments parsing
+ */
+
+let void main(Integer x) {
+	print(x / 3);
+	if (x > 2) {
+		String v := read(); /* Read String//*/
+	}
+}

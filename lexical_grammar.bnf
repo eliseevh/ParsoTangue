@@ -1,6 +1,9 @@
-<source_file> ::= (<token> | <whitespace>)*
+<source_file> ::= (<token> | <whitespace> | <comment>)*
 
 <whitespace> ::= "regexp:\w"
+
+<comment> ::= "/*" <comment_tail>
+<comment_tail> ::= ("regexp:[^*]" <comment_tail>) | ("*"+ "/") | ("*"+ "regexp:[^*/]" <comment_tail>)
 
 <token> ::= <operation> | <literal> | <keyword> | <special_symbol> | <typename> | <ident>
 

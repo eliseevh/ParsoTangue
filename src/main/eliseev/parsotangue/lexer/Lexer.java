@@ -32,7 +32,15 @@ public class Lexer {
         if (eof) {
             // No token
             result = null;
-        } else if (test('+') || test('-') || test('*') || test('/') || test('%')) {
+        } else if (skip('/')) {
+            // Division or comment
+            if (skip('*')) {
+                skipCommentTail();
+                return nextToken();
+            } else {
+                result = new Operation("/", startPos, source.getPosition());
+            }
+        } else if (test('+') || test('-') || test('*') || test('%')) {
             // Arithmetical
             result = new Operation(Character.toString(take()), startPos, source.getPosition());
         } else if (skip(':')) {
@@ -115,6 +123,16 @@ public class Lexer {
             result.add(next.get());
         }
         return result;
+    }
+
+    private void skipCommentTail() throws LexerException {
+        do {
+            while (!test('*')) {
+                take();
+            }
+            //noinspection StatementWithEmptyBody
+            while (skip('*')) {}
+        } while (!skip('/'));
     }
 
 

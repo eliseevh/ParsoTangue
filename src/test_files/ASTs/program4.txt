@@ -1,0 +1,34 @@
+(Program [
+    (Function (main) {
+        Body : (Code block [
+            (Function call (print) {
+                Arguments : (Argument list [
+                    (MulDiv operation (/) {
+                        Left argument : (Variable (x)),
+                        Right argument : (Integer literal (3))
+                    })
+                ])
+            }),
+            (Conditional expression {
+                "if" block : (Code block [
+                    (Variable creation (v) {
+                        Type : (Value type (String)),
+                        Value : (Function call (read) {
+                            Arguments : (Argument list[])
+                        })
+                    })
+                ]),
+                Condition : (Order operation (>) {
+                    Left argument : (Variable (x)),
+                    Right argument : (Integer literal (2))
+                })
+            })
+        ]),
+        Parameters : (Function parameters [
+            (Function parameter (x) {
+                Type : (Value type (Integer))
+            })
+        ]),
+        Type : (Function type (void))
+    })
+])
