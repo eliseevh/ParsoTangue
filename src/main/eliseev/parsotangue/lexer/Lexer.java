@@ -91,7 +91,7 @@ public class Lexer {
             while (test(Character::isDigit)) {
                 number.append(take());
             }
-            result = new IntegerLiteral(Integer.parseInt(number.toString()), startPos, source.getPosition());
+            result = new IntegerLiteral(number.toString(), startPos, source.getPosition());
         } else {
             // Boolean literal, ident, keyword or typename
             final StringBuilder tokenBuilder = new StringBuilder();
